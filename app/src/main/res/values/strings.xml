@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">ArtPricing</string>
+    <string name="new_pricing">Расчет стоимости</string>
+    <string name="exchange_rate">Курс валюты</string>
+    <string name="help">Помощь</string>
+    <string name="materials">Материалы</string>
+    <string name="cost_price">Расчет себестоимости</string>
+    <string name="quantity">Количество</string>
+    <string name="price">Стоимость</string>
+    <string name="total_cost_price">Итого себестоимость</string>
+    <string name="number_of_pieces">Количество единиц</string>
+    <string name="total_cost_price_of_one_piece">Итого себестоимость 1 шт</string>
+    <string name="extra_charge">Наценка, %</string>
+    <string name="delivery_one_piece">Доставка 1 шт</string>
+    <string name="total_one_piece">Сnоимость 1 шт</string>
+    <string name="price_hour">Стоимость часа</string>
+    <string name="pricing_one_piece">Рассчитать стоимость 1 единицы</string>
+    <string name="clear">Очистить</string>
+    <string name="exchange">Рассчитать стоимость в долларах США/евро</string>
+    <string name="Info">Инфо</string>
+</resources>
