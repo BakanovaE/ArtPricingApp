@@ -1,15 +1,23 @@
 package org.martellina.artpricingapp;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.ShareActionProvider;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.MenuItemCompat;
 
-import android.content.DialogInterface;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -35,17 +43,23 @@ public class MainActivity extends AppCompatActivity {
     private Runnable runnable;
     private ListView listView;
     private CustomArrayAdapter adapter;
-    private List<ListItemClass> arrayList;
+    public static List<ListItemClass> arrayList = new ArrayList<>();
+    private ShareActionProvider shareActionProvider;
 
-    private TextView totalPriceOnePiece;
+    public static TextView totalPriceOnePiece;
+    public static TextView name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        name = (EditText) findViewById(R.id.edit_text_name);
 
         EditText materialsQuantity = (EditText) findViewById(R.id.edit_text_quantity);
         EditText materialPrice = (EditText) findViewById(R.id.edit_text_material_price);
@@ -155,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     public void clear (ViewGroup group) {
         for (int i = 0, count = group.getChildCount(); i < count; i++) {
             View view = group.getChildAt(i);
@@ -169,12 +184,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onExchangeOnePiece (View view) {
-        init();
+        if (totalPriceOnePiece.getText().toString().length() > 0) {
+            if (isConnected()) {
+                init();
+            } else {
+                DialogFragmentWiFi dialog = new DialogFragmentWiFi();
+                dialog.show(getSupportFragmentManager(), "custom");
+            }
+        }
+            else{
+                Toast toast = Toast.makeText(this, "Рассчитайте стоимость в рублях", Toast.LENGTH_LONG);
+                toast.show();
+            }
+
     }
 
-    private void init () {
+    public void init () {
         listView = (ListView) findViewById(R.id.listView);
-        arrayList = new ArrayList<>();
         adapter = new CustomArrayAdapter(this, R.layout.list_item_1, arrayList,getLayoutInflater());
         listView.setAdapter(adapter);
 
@@ -208,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                         | ourTable.children().get(i).child(1).text().equals("USD")) {
 
                     items.setData1(ourTable.children().get(i).child(3).text());
-                    Log.d("MyLog", ourTable.children().get(i).child(3).text());
+                    //Log.d("MyLog", ourTable.children().get(i).child(3).text());
                     items.setData2(ourTable.children().get(i).child(4).text());
 
                     totalPriceOnePiece = (TextView) findViewById(R.id.text_view_total_price_of_one);
@@ -221,7 +247,12 @@ public class MainActivity extends AppCompatActivity {
 
                     items.setData5(res);
                     arrayList.add(items);
+
                 }
+            }
+
+            for (int l = 0; l<arrayList.size(); l++) {
+                Log.d("MyLog", arrayList.size() + " - " + arrayList.get(l).getData1());
             }
 
             runOnUiThread(new Runnable() {
@@ -235,26 +266,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void onSendData(View view) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, StringShare.makeStringShare());
+        sendIntent.setType("text/plain");
+        startActivity(sendIntent);
+    }
+
     @Override
     public void onBackPressed() {
-        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
-        ab.setTitle("Закрыть приложение");
-        ab.setMessage("Данные при выходе не сохраняются");
-        ab.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                android.os.Process.killProcess(android.os.Process.myPid());
-                System.exit(1);
-            }
-        });
-        ab.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        ab.show();
+        DialogFragmentExit dialog = new DialogFragmentExit();
+        dialog.show(getSupportFragmentManager(), "custom");
     }
+    
+    private boolean isConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        return ni != null && ni.isConnected() && ni.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
 }
+

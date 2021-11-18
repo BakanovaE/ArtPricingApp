@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ArtPricingApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.ArtPricingApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">#A8A8A8</item>
         <item name="colorPrimaryVariant">#434343</item>
