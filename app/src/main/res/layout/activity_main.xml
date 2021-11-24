@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
+    android:padding="10dp" >
+
+<LinearLayout
     android:orientation="vertical"
-    android:id="@+id/layout_pricing">
+    android:id="@+id/layout_pricing"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <include
         layout="@layout/toolbar_main"
@@ -28,6 +32,10 @@
             android:hint="Название"
             android:textSize="12sp" />
 
+        <Spinner
+            android:id="@+id/spinner_current"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 
@@ -223,26 +231,27 @@
         android:padding="5dp"
         android:layout_gravity="right">
 
+        <Spinner
+            android:id="@+id/spinner_exchange"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onExchangeOnePiece"
+            android:onClick="onExchange"
             android:text="@string/exchange"
-            android:textSize="10sp" />
+            android:textSize="10sp"
+            android:layout_weight="2"/>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="5dp"
-        android:id="@+id/layout_list_view">
-
-        <ListView
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/text_view_exchanged"
+            android:layout_width="80dp"
             android:layout_height="wrap_content"
-            android:id="@+id/listView"/>
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_weight="1"/>
 
     </LinearLayout>
 
@@ -263,3 +272,5 @@
 
 
 </LinearLayout>
+
+</ScrollView>

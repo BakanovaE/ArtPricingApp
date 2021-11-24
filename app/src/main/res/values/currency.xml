@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="currency">
+        <item>RUB</item>
+        <item>EUR</item>
+        <item>USD</item>
+        <item>GBR</item>
+        <item>PLN</item>
+        <item>BYN</item>
+        <item>KZT</item>
+        <item>ILS</item>
+        <item>AUD</item>
+        <item>CAD</item>
+        <item>CNY</item>
+        <item>KRW</item>
+        <item>NZD</item>
+        <item>NOK</item>
+        <item>JPY</item>
+        <item>SEK</item>
+        <item>CZK</item>
+        <item>DKK</item>
+    </string-array>
+
+</resources>

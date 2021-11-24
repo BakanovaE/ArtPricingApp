@@ -16,7 +16,7 @@
     <string name="price_hour">Стоимость часа</string>
     <string name="pricing_one_piece">Рассчитать стоимость 1 единицы</string>
     <string name="clear">Очистить</string>
-    <string name="exchange">Рассчитать стоимость в долларах США/евро</string>
+    <string name="exchange">Конвертировать</string>
     <string name="Info">Инфо</string>
     <string name="share">Поделиться</string>
     <string name="send_pricing">Отправить расчет</string>

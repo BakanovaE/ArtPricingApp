@@ -13,18 +13,8 @@ public class DialogFragmentWiFi extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage("Отсутствует WiFi соединение");
-        builder.setPositiveButton("Продолжить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                ((MainActivity) getActivity()).init();
-            }
-        }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-        return builder
-                .create();
+        builder.setNeutralButton("Продолжить", null);
+
+        return builder.create();
     }
 }

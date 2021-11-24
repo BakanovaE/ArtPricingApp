@@ -10,8 +10,8 @@ android {
         applicationId "org.martellina.artpricingapp"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 6
-        versionName "3.0"
+        versionCode 7
+        versionName "4.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

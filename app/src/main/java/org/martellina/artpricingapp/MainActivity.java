@@ -1,53 +1,54 @@
 package org.martellina.artpricingapp;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.ShareActionProvider;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.MenuItemCompat;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jsoup.Jsoup;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Document doc;
-    private Thread secThread;
-    private Runnable runnable;
-    private ListView listView;
-    private CustomArrayAdapter adapter;
     public static List<ListItemClass> arrayList = new ArrayList<>();
-    private ShareActionProvider shareActionProvider;
 
     public static TextView totalPriceOnePiece;
     public static TextView name;
+
+    public static String currencyCurrent;
+    public static String currencyExchangeTo;
+
+    public static TextView exchanged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,26 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Spinner spinnerCurrent = (Spinner) findViewById(R.id.spinner_current);
+        String[] currency = getResources().getStringArray(R.array.currency);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, currency);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCurrent.setAdapter(adapter);
+
+        AdapterView.OnItemSelectedListener itemSelectedListener = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                currencyCurrent = (String)adapterView.getItemAtPosition(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                currencyCurrent = "";
+            }
+        };
+
+        spinnerCurrent.setOnItemSelectedListener(itemSelectedListener);
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
@@ -167,6 +188,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Spinner spinnerExchange = (Spinner) findViewById(R.id.spinner_exchange);
+        ArrayAdapter adapterExchange = new ArrayAdapter(this, android.R.layout.simple_list_item_1, currency);
+        adapterExchange.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerExchange.setAdapter(adapter);
+
+        AdapterView.OnItemSelectedListener itemSelectedListener2 = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                currencyExchangeTo = (String)adapterView.getItemAtPosition(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                currencyExchangeTo = "";
+            }
+        };
+
+        spinnerExchange.setOnItemSelectedListener(itemSelectedListener2);
     }
 
 
@@ -181,88 +220,86 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         totalPriceOnePiece.setText("0");
+        exchanged.setText("0");
     }
 
-    public void onExchangeOnePiece (View view) {
+    public void onExchange (View view) {
         if (totalPriceOnePiece.getText().toString().length() > 0) {
             if (isConnected()) {
-                init();
+                String url = "https://api.exchangerate.host/convert?from=" + currencyCurrent + "&to=" + currencyExchangeTo;
+
+                new GetURLData().execute(url);
+
             } else {
                 DialogFragmentWiFi dialog = new DialogFragmentWiFi();
                 dialog.show(getSupportFragmentManager(), "custom");
             }
         }
-            else{
-                Toast toast = Toast.makeText(this, "Рассчитайте стоимость в рублях", Toast.LENGTH_LONG);
-                toast.show();
-            }
+        else{
+            Toast toast = Toast.makeText(this, "Рассчитайте стоимость в рублях", Toast.LENGTH_LONG);
+            toast.show();
+        }
+
 
     }
 
-    public void init () {
-        listView = (ListView) findViewById(R.id.listView);
-        adapter = new CustomArrayAdapter(this, R.layout.list_item_1, arrayList,getLayoutInflater());
-        listView.setAdapter(adapter);
+    public class GetURLData extends AsyncTask<String, String, String> {
 
-        runnable = new Runnable() {
-            @Override
-            public void run() {
-                getWeb();
-            }
-        };
-        secThread = new Thread (runnable);
-        secThread.start();
-    }
+        @Override
+        protected String doInBackground(String... strings) {
+            HttpURLConnection connection = null;
+            BufferedReader reader = null;
 
-    private void getWeb() {
-        try {
-            doc = Jsoup.connect("https://www.cbr.ru/currency_base/daily/").get();
+            try {
+                URL url = new URL(strings[0]);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
 
-            Elements tables = doc.getElementsByTag("tbody");
-            Element ourTable = tables.get(0);
-            Elements elementsFromTable = ourTable.children();
-            Element first = elementsFromTable.get(1);
-            Elements first_elements = first.children();
+                InputStream stream = connection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(stream));
 
-            //Log.d("MyLog", "It`s /" + ourTable.children().get(1).child(1).text() + "/.");
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
 
-            for (int i = 0; i < ourTable.childrenSize(); i++) {
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line).append("\n");
 
-                ListItemClass items = new ListItemClass();
-
-                if (ourTable.children().get(i).child(1).text().equals("EUR")
-                        | ourTable.children().get(i).child(1).text().equals("USD")) {
-
-                    items.setData1(ourTable.children().get(i).child(3).text());
-                    //Log.d("MyLog", ourTable.children().get(i).child(3).text());
-                    items.setData2(ourTable.children().get(i).child(4).text());
-
-                    totalPriceOnePiece = (TextView) findViewById(R.id.text_view_total_price_of_one);
-
-                    double oneRub = Double.parseDouble(totalPriceOnePiece.getText().toString().replaceAll("," , "."));
-                    double n = Double.parseDouble(ourTable.children().get(i).child(4).text().replaceAll(",", "."));
-                    double result = oneRub/n;
-
-                    String res = String.format("%.2f", result);
-
-                    items.setData5(res);
-                    arrayList.add(items);
-
+                    return buffer.toString();
                 }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            for (int l = 0; l<arrayList.size(); l++) {
-                Log.d("MyLog", arrayList.size() + " - " + arrayList.get(l).getData1());
-            }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    adapter.notifyDataSetChanged();
+            finally {
+                if (connection != null) {
+                    connection.disconnect();
                 }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                }
+            return null;
+            }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            try {
+                JSONObject jsonObject = new JSONObject(s);
+                double exchangeRate = jsonObject.getJSONObject("info").getDouble("rate");
+                exchanged = (TextView) findViewById(R.id.text_view_exchanged);
+                double result = Double.parseDouble(totalPriceOnePiece.getText().toString().replaceAll(",", ".")) * exchangeRate;
+
+                exchanged.setText(String.format("%.2f", result));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
         }
     }
 

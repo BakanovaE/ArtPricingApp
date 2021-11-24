@@ -14,16 +14,14 @@ public class StringShare {
             Log.d("MyLog", result);
         }
 
-        if (MainActivity.totalPriceOnePiece.getText().toString().length() > 0) {
-            result = result.concat(MainActivity.totalPriceOnePiece.getText().toString() + " руб." + "\n");
+        if (MainActivity.totalPriceOnePiece.getText().toString().length() > 0 && !MainActivity.currencyCurrent.isEmpty()) {
+            result = result.concat(MainActivity.totalPriceOnePiece.getText().toString() + " " + MainActivity.currencyCurrent + "\n");
             Log.d("MyLog", result);
         }
 
-        if (!MainActivity.arrayList.isEmpty()) {
-            for (int i = 0; i<MainActivity.arrayList.size(); i++) {
-                result = result.concat(MainActivity.arrayList.get(i).getData1() + " " + MainActivity.arrayList.get(i).getData5() + "\n");
-                Log.d("MyLog", result);
-            }
+        if (MainActivity.exchanged.getText().toString().length() > 0 && !MainActivity.currencyExchangeTo.isEmpty()) {
+            result = result.concat(MainActivity.exchanged.getText().toString() + " " + MainActivity.currencyExchangeTo + "\n");
+            Log.d("MyLog", result);
         }
 
         return result;
